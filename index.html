@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floating 3D Card for Bhagyashri Ji</title>
+    <style>
+        /* --- CSS Styles --- */
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            /* Magical, airy background */
+            background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%); 
+            overflow: hidden; 
+            font-family: Arial, sans-serif;
+            cursor: grab; /* Indicate draggable */
+        }
+
+        body.dragging {
+            cursor: grabbing;
+        }
+
+        /* --- 3D Scene Setup (Central) --- */
+        .scene {
+            width: 800px; 
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px; /* Strong perspective */
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* --- Card Container (Floating Position) --- */
+        .card-container {
+            position: absolute;
+            width: 250px; 
+            height: 380px;
+            transform-style: preserve-3d;
+            /* Initial transform: Floating high and tilted */
+            transform: rotateX(20deg) rotateY(20deg) translateZ(100px); 
+            transition: transform 0.1s ease-out; /* Smooth movement during drag */
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7); /* Strong floating shadow */
+        }
+
+        /* --- Card (The Flipping Element) --- */
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d; /* Key for 3D flip */
+            transition: transform 0.5s ease; /* Smooth flip transition */
+        }
+        
+        /* This class will be added by JS to flip the card */
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* --- Card Faces (Front and Back) --- */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden; 
+            border-radius: 20px; /* Softer edges */
+            background: #ffffff;
+            padding: 20px;
+            box-sizing: border-box;
+            border: 6px solid #ff69b4; /* Pink border */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* Subtle glow for floating effect */
+            filter: drop-shadow(0 0 15px #ff69b480); 
+        }
+
+        .card-front {
+            z-index: 2;
+        }
+
+        .card-back {
+            transform: rotateY(180deg); 
+            background: linear-gradient(to bottom right, #ffafbd, #ffc3a0); 
+            color: #4a4a4a;
+            text-align: left; /* Message alignment */
+            padding: 25px;
+            justify-content: flex-start; /* Align text to top */
+        }
+
+        .card-img {
+            width: 100%;
+            height: auto;
+            max-height: 90%;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .message-text {
+            font-family: 'Times New Roman', serif;
+            font-size: 0.85em;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            font-style: italic;
+            font-weight: 500;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scene">
+        <div class="card-container" id="cardContainer">
+            <div class="card" id="draggableCard">
+                <div class="card-face card-front">
+                    <img src="10 pic.jpg" alt="Bhagyashri Ji" class="card-img">
+                    <p class="message-text" style="text-align: center; color: #ff69b4; font-size: 1.1em; font-weight: bold;">
+                        DRAG to Rotate | Double Click to Flip!
+                    </p>
+                </div>
+                <div class="card-face card-back">
+                    <p class="message-text">
+                        **Jaan** mere cutu pie, how are you? I know you're doing well, and I hope you always stay well, always healthy, always happy. My sweet doll, my cutu baby, **I LOVE YOU SO MUCH** jaan. You are very lovely, and I am glad that I found you. I could celebrate this fact every day. And mera cutu pie **I LOVE YOU SOOOOO MUCH** and now sleep **balak** mere paneer palak 🥰😘
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- JavaScript for Draggable 3D Card ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const cardContainer = document.getElementById('cardContainer');
+            const draggableCard = document.getElementById('draggableCard'); 
+
+            let isDragging = false;
+            let startX, startY;
+            // Initial rotations are set slightly higher for a 'floating' feel
+            let currentX = 20; 
+            let currentY = 20; 
+
+            // Function to apply current rotations
+            function applyRotation() {
+                // translateZ(100px) keeps it floating in the air
+                cardContainer.style.transform = `rotateX(${currentX}deg) rotateY(${currentY}deg) translateZ(100px)`;
+            }
+
+            // Mouse Down Event (Start Drag)
+            cardContainer.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                document.body.classList.add('dragging');
+                startX = e.clientX;
+                startY = e.clientY;
+                e.preventDefault(); 
+                cardContainer.style.transition = 'none'; 
+            });
+
+            // Mouse Move Event (During Drag)
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+
+                // Sensitivity controls how fast the card rotates
+                currentX -= deltaY * 0.25; 
+                currentY += deltaX * 0.25; 
+
+                applyRotation();
+
+                startX = e.clientX; 
+                startY = e.clientY;
+            });
+
+            // Mouse Up Event (End Drag)
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    document.body.classList.remove('dragging');
+                    cardContainer.style.transition = 'transform 0.1s ease-out'; 
+                }
+            });
+
+            // Double Click to Flip the Card
+            cardContainer.addEventListener('dblclick', () => {
+                draggableCard.classList.toggle('flipped');
+            });
+
+            // Initialize position
+            applyRotation();
+        });
+    </script>
+</body>
+</html>
